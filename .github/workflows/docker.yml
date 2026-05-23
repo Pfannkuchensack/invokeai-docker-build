@@ -69,7 +69,16 @@ jobs:
         id: tag
         run: |
           ref='${{ needs.prepare.outputs.ref }}'
-          echo "ref_safe=$(echo "$ref" | tr '/' '-')" >> "$GITHUB_OUTPUT"
+          ref_safe=$(echo "$ref" | tr '/' '-')
+          echo "ref_safe=$ref_safe" >> "$GITHUB_OUTPUT"
+          if [ "$ref" = "main" ]; then
+            echo "tags<<EOF" >> "$GITHUB_OUTPUT"
+            echo "ghcr.io/${{ needs.prepare.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:${ref_safe}-${{ matrix.variant }}" >> "$GITHUB_OUTPUT"
+            echo "ghcr.io/${{ needs.prepare.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.variant }}" >> "$GITHUB_OUTPUT"
+            echo "EOF" >> "$GITHUB_OUTPUT"
+          else
+            echo "tags=ghcr.io/${{ needs.prepare.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:${ref_safe}-${{ matrix.variant }}" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Checkout InvokeAI source
         uses: actions/checkout@v4
@@ -102,8 +111,6 @@ jobs:
           file: ${{ steps.cfg.outputs.dockerfile }}
           push: true
           build-args: ${{ steps.cfg.outputs.build_args }}
-          tags: |
-            ghcr.io/${{ needs.prepare.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:${{ steps.tag.outputs.ref_safe }}-${{ matrix.variant }}
-            ghcr.io/${{ needs.prepare.outputs.owner_lc }}/${{ env.IMAGE_NAME }}:latest-${{ matrix.variant }}
+          tags: ${{ steps.tag.outputs.tags }}
           cache-from: type=gha,scope=${{ matrix.variant }}
           cache-to: type=gha,mode=max,scope=${{ matrix.variant }}
