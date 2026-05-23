@@ -11,9 +11,6 @@ on:
         description: 'Comma-separated variants to build (cuda,cpu,rocm)'
         default: 'cuda,cpu,rocm'
         required: true
-  schedule:
-    # Daily build of main at 05:00 UTC – remove if you don't want this
-    - cron: '0 5 * * *'
 
 env:
   SOURCE_REPO: Pfannkuchensack/InvokeAI

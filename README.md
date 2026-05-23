@@ -12,7 +12,6 @@ feature branches / upstream PRs.
 
 ## Trigger
 
-- Daily at 05:00 UTC (built from `main`, all variants)
 - Manually:
 
 ```bash
